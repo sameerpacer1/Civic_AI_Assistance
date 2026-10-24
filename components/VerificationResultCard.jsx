@@ -28,8 +28,15 @@ export default function VerificationResultCard({
   const [activeTab, setActiveTab] = useState('split'); // 'split' | 'side' | 'raw' | 'processed'
   const [sliderPos, setSliderPos] = useState(50);
   const [copied, setCopied] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
   if (!result) return null;
+
+  const handleAdd = () => {
+    if (isAdded) return;
+    setIsAdded(true);
+    if (onAddToFeed) onAddToFeed();
+  };
 
   const {
     title,
@@ -234,16 +241,15 @@ export default function VerificationResultCard({
                   </div>
                 </div>
 
-                {/* Raw Upload (Left / Clipped Layer) */}
+                {/* Raw Upload (Left / Clipped Layer) with clipPath for pixel-perfect comparison */}
                 <div
-                  className="absolute inset-0 overflow-hidden"
-                  style={{ width: `${sliderPos}%` }}
+                  className="absolute inset-0 overflow-hidden pointer-events-none"
+                  style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
                 >
                   <img
                     src={rawUrl}
                     alt="Raw Upload"
-                    className="absolute inset-0 w-full h-full object-cover max-w-none"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
 
                   {/* Highlight bounding boxes on raw image showing unredacted faces */}
@@ -451,13 +457,41 @@ export default function VerificationResultCard({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              {onDismiss && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onDismiss();
+                    const el = document.getElementById('report-form');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Report Another Issue
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={onAddToFeed}
-                className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+                onClick={handleAdd}
+                disabled={isAdded}
+                className={`inline-flex items-center space-x-2 px-6 py-3 rounded-xl font-bold text-sm shadow-lg transition-all cursor-pointer ${
+                  isAdded
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-none cursor-default'
+                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white shadow-emerald-600/25'
+                }`}
               >
-                <span>Add to Live Public Dashboard</span>
-                <ArrowRight className="w-4 h-4" />
+                {isAdded ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Published to Live Feed</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Add to Live Public Dashboard</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           </div>

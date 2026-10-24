@@ -101,16 +101,15 @@ export default function ReportDetailModal({ report, onClose }) {
                 </span>
               </div>
 
-              {/* Raw Upload (Left / Clipped Layer) */}
+              {/* Raw Upload (Left / Clipped Layer) with clipPath for pixel-perfect comparison */}
               <div
-                className="absolute inset-0 overflow-hidden"
-                style={{ width: `${sliderPos}%` }}
+                className="absolute inset-0 overflow-hidden pointer-events-none"
+                style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
               >
                 <img
                   src={rawUrl}
                   alt="Raw Upload"
-                  className="absolute inset-0 w-full h-full object-cover max-w-none"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
 
                 <div className="absolute top-[30%] left-[58%] w-14 h-14 rounded border-2 border-dashed border-red-500 bg-red-500/25 flex items-start justify-center p-0.5">
