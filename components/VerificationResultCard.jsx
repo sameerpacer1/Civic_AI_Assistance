@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   CheckCircle2, 
@@ -30,12 +30,39 @@ export default function VerificationResultCard({
   const [copied, setCopied] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
+  useEffect(() => {
+    setIsAdded(false);
+    setSliderPos(50);
+  }, [result?.reportId]);
+
   if (!result) return null;
 
   const handleAdd = () => {
     if (isAdded) return;
     setIsAdded(true);
     if (onAddToFeed) onAddToFeed();
+  };
+
+  const fallbackImg = 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=85';
+
+  const copyUrl = async () => {
+    const urlToCopy = result.cloudinaryTransformationsUrl || redactedOptimizedUrl;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(urlToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = urlToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.warn('Clipboard write failed:', e);
+    }
   };
 
   const {
@@ -58,13 +85,6 @@ export default function VerificationResultCard({
     facesPixelated = 2,
     isDemoMode = false,
   } = result;
-
-  const copyUrl = () => {
-    const urlToCopy = result.cloudinaryTransformationsUrl || redactedOptimizedUrl;
-    navigator.clipboard?.writeText(urlToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <div className="max-w-5xl mx-auto my-8 animate-fadeIn">
@@ -212,6 +232,7 @@ export default function VerificationResultCard({
                   src={redactedOptimizedUrl || rawUrl}
                   alt="Cloudinary Processed"
                   className="absolute inset-0 w-full h-full object-cover filter contrast-[1.02]"
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                 />
 
                 {/* Simulated Face Redaction Overlay box on the processed side */}
@@ -250,6 +271,7 @@ export default function VerificationResultCard({
                     src={rawUrl}
                     alt="Raw Upload"
                     className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
 
                   {/* Highlight bounding boxes on raw image showing unredacted faces */}
@@ -318,6 +340,7 @@ export default function VerificationResultCard({
                     src={rawUrl}
                     alt="Raw Upload"
                     className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
                   <div className="absolute top-[30%] left-[55%] w-16 h-16 rounded border-2 border-dashed border-red-500 bg-red-500/20 flex items-start justify-center p-0.5">
                     <span className="text-[9px] font-black text-white bg-red-600 px-1 rounded">
@@ -356,6 +379,7 @@ export default function VerificationResultCard({
                     src={redactedOptimizedUrl || rawUrl}
                     alt="Cloudinary Processed"
                     className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
                   {/* Simulated Face Redaction Pixelation */}
                   <div className="absolute top-[30%] left-[55%] w-16 h-16 rounded backdrop-blur-md bg-slate-500/40 border border-purple-400 shadow-inner flex items-center justify-center">

@@ -96,6 +96,15 @@ export default function SmartIssueForm({ onVerificationComplete }) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const handleResetForm = () => {
+    setTitle('');
+    setLocation('Delhi NCR / Noida Sector 62');
+    setCategory('Pothole');
+    setDescription('');
+    handleClearImage();
+    setErrorMessage('');
+  };
+
   const handleApplyPreset = (preset) => {
     setTitle(preset.title);
     setLocation(preset.location);
@@ -206,7 +215,7 @@ export default function SmartIssueForm({ onVerificationComplete }) {
               <Zap className="w-3.5 h-3.5 text-amber-500" />
               <span>Quick Test Presets for Judges:</span>
             </span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               {SAMPLE_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
@@ -217,6 +226,16 @@ export default function SmartIssueForm({ onVerificationComplete }) {
                   {preset.name}
                 </button>
               ))}
+              {(title || previewUrl || description) && (
+                <button
+                  type="button"
+                  onClick={handleResetForm}
+                  className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors cursor-pointer ml-1"
+                  title="Clear all fields"
+                >
+                  Clear Form
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -343,6 +362,7 @@ export default function SmartIssueForm({ onVerificationComplete }) {
                   src={previewUrl}
                   alt="Issue Preview"
                   className="w-full h-64 sm:h-80 object-cover object-center"
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=85'; }}
                 />
 
                 {/* Overlay details */}

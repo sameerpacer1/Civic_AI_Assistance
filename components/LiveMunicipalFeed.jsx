@@ -135,6 +135,7 @@ export default function LiveMunicipalFeed({
             { id: 'Water Leakage', label: '💧 Water Leaks' },
             { id: 'Garbage Dump', label: '🗑️ Garbage' },
             { id: 'Broken Streetlight', label: '💡 Streetlights' },
+            { id: 'Open Manhole', label: '⚠️ Manholes' },
           ].map((c) => (
             <button
               key={c.id}
@@ -187,6 +188,7 @@ export default function LiveMunicipalFeed({
                     src={report.processedImage || report.thumbnail || report.redactedOptimizedUrl || report.rawImage}
                     alt={report.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=70'; }}
                   />
 
                   {/* Top Overlay Badges */}

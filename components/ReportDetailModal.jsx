@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   ShieldCheck, 
@@ -20,21 +20,49 @@ export default function ReportDetailModal({ report, onClose }) {
   const [sliderPos, setSliderPos] = useState(50);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   if (!report) return null;
 
   const rawUrl = report.rawImage || report.rawUrl;
   const processedUrl = report.processedImage || report.redactedOptimizedUrl || report.rawImage;
+  const fallbackImg = 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=85';
 
-  const copyUrl = () => {
-    navigator.clipboard?.writeText(report.redactedOptimizedUrl || processedUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyUrl = async () => {
+    const urlToCopy = report.cloudinaryTransformationsUrl || report.redactedOptimizedUrl || processedUrl;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(urlToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = urlToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      console.warn('Clipboard write failed:', e);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fadeIn cursor-pointer"
+      onClick={onClose}
+    >
       <div 
-        className="relative bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden"
+        className="relative bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -84,6 +112,7 @@ export default function ReportDetailModal({ report, onClose }) {
                 src={processedUrl}
                 alt="Cloudinary Processed"
                 className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
               />
 
               {/* Redaction box simulation */}
@@ -110,6 +139,7 @@ export default function ReportDetailModal({ report, onClose }) {
                   src={rawUrl}
                   alt="Raw Upload"
                   className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                 />
 
                 <div className="absolute top-[30%] left-[58%] w-14 h-14 rounded border-2 border-dashed border-red-500 bg-red-500/25 flex items-start justify-center p-0.5">
