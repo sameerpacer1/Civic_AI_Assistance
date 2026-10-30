@@ -221,6 +221,33 @@ export default function ReportDetailModal({ report, onClose }) {
             </div>
           )}
 
+          {/* Municipal Resolution Proof Banner if Resolved */}
+          {report.statusCode === 'resolved' && (
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 flex items-start space-x-3">
+              <div className="p-2 rounded-xl bg-emerald-500 text-white flex-shrink-0">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div className="text-xs">
+                <div className="flex items-center space-x-2">
+                  <strong className="text-emerald-950 font-bold text-sm">
+                    Municipal Rectification Verified &amp; Certified
+                  </strong>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    {report.resolvedIn || 'Within SLA'}
+                  </span>
+                </div>
+                <p className="text-emerald-800 mt-1 leading-relaxed">
+                  {report.resolvedAction || 'Municipal road crew completed pavement compaction and surface sealing.'}
+                </p>
+                {report.resolvedOfficer && (
+                  <p className="text-[11px] text-emerald-700 mt-1 font-semibold">
+                    Certifying Lead: {report.resolvedOfficer} • WO: {report.resolvedWorkOrder || 'WO-MCD-2026-8819'}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Cloudinary URL Box */}
           <div className="p-3.5 rounded-xl bg-slate-900 text-white text-xs font-mono flex items-center justify-between gap-3">
             <span className="text-cyan-300 truncate">

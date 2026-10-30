@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import HeroStats from '@/components/HeroStats';
 import SmartIssueForm from '@/components/SmartIssueForm';
@@ -8,6 +8,7 @@ import VerificationResultCard from '@/components/VerificationResultCard';
 import LiveMunicipalFeed from '@/components/LiveMunicipalFeed';
 import CloudinaryExplainer from '@/components/CloudinaryExplainer';
 import ReportDetailModal from '@/components/ReportDetailModal';
+import MunicipalRepairModal from '@/components/MunicipalRepairModal';
 import Footer from '@/components/Footer';
 import { INITIAL_SAMPLE_REPORTS } from '@/lib/sampleData';
 import confetti from 'canvas-confetti';
@@ -16,7 +17,31 @@ export default function Home() {
   const [reports, setReports] = useState(INITIAL_SAMPLE_REPORTS);
   const [verificationResult, setVerificationResult] = useState(null);
   const [selectedModalReport, setSelectedModalReport] = useState(null);
+  const [selectedRepairReport, setSelectedRepairReport] = useState(null);
   const [totalReportsCount, setTotalReportsCount] = useState(1428);
+
+  // Load persisted reports if available
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('civic_ai_reports_v2');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setReports(parsed);
+          setTotalReportsCount(1428 + Math.max(0, parsed.length - INITIAL_SAMPLE_REPORTS.length));
+        }
+      }
+    } catch (e) {
+      console.warn('LocalStorage notice:', e);
+    }
+  }, []);
+
+  const updateAndSaveReports = (newReports) => {
+    setReports(newReports);
+    try {
+      localStorage.setItem('civic_ai_reports_v2', JSON.stringify(newReports));
+    } catch (e) {}
+  };
 
   const handleScrollToForm = () => {
     const el = document.getElementById('report-form');
@@ -84,7 +109,8 @@ export default function Home() {
       description: verificationResult.description || '',
     };
 
-    setReports([newReport, ...reports]);
+    const updated = [newReport, ...reports];
+    updateAndSaveReports(updated);
     setTotalReportsCount((prev) => prev + 1);
 
     // Confetti burst for publication
@@ -107,19 +133,31 @@ export default function Home() {
   };
 
   const handleUpvote = (id) => {
-    setReports((prev) =>
-      prev.map((r) => {
-        if (r.id === id) {
-          const hasUpvoted = !r.hasUpvoted;
-          return {
-            ...r,
-            hasUpvoted,
-            upvotes: hasUpvoted ? r.upvotes + 1 : r.upvotes - 1,
-          };
-        }
-        return r;
-      })
-    );
+    const updated = reports.map((r) => {
+      if (r.id === id) {
+        const hasUpvoted = !r.hasUpvoted;
+        return {
+          ...r,
+          hasUpvoted,
+          upvotes: hasUpvoted ? r.upvotes + 1 : r.upvotes - 1,
+        };
+      }
+      return r;
+    });
+    updateAndSaveReports(updated);
+  };
+
+  const handleConfirmResolution = (reportId, resolutionData) => {
+    const updated = reports.map((r) => {
+      if (r.id === reportId) {
+        return {
+          ...r,
+          ...resolutionData,
+        };
+      }
+      return r;
+    });
+    updateAndSaveReports(updated);
   };
 
   return (
@@ -162,6 +200,7 @@ export default function Home() {
             reports={reports}
             onUpvote={handleUpvote}
             onSelectReport={(report) => setSelectedModalReport(report)}
+            onOpenRepairModal={(report) => setSelectedRepairReport(report)}
           />
         </div>
 
@@ -176,6 +215,16 @@ export default function Home() {
         <ReportDetailModal
           report={selectedModalReport}
           onClose={() => setSelectedModalReport(null)}
+        />
+      )}
+
+      {/* Municipal Before vs After Resolution Modal */}
+      {selectedRepairReport && (
+        <MunicipalRepairModal
+          report={selectedRepairReport}
+          isOpen={Boolean(selectedRepairReport)}
+          onClose={() => setSelectedRepairReport(null)}
+          onConfirmResolution={handleConfirmResolution}
         />
       )}
 

@@ -15,13 +15,15 @@ import {
   CheckCircle2, 
   ExternalLink,
   Layers,
-  Sparkles
+  Sparkles,
+  Wrench
 } from 'lucide-react';
 
 export default function LiveMunicipalFeed({ 
   reports = [], 
   onUpvote, 
-  onSelectReport 
+  onSelectReport,
+  onOpenRepairModal
 }) {
   const [filterCategory, setFilterCategory] = useState('ALL');
   const [filterPriority, setFilterPriority] = useState('ALL');
@@ -185,7 +187,7 @@ export default function LiveMunicipalFeed({
                 {/* Thumbnail Container */}
                 <div className="relative h-48 sm:h-52 w-full bg-slate-950 overflow-hidden">
                   <img
-                    src={report.processedImage || report.thumbnail || report.redactedOptimizedUrl || report.rawImage}
+                    src={report.statusCode === 'resolved' && report.resolvedProof ? report.resolvedProof : (report.processedImage || report.thumbnail || report.redactedOptimizedUrl || report.rawImage)}
                     alt={report.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=70'; }}
@@ -196,20 +198,31 @@ export default function LiveMunicipalFeed({
                     {/* Severity Priority Badge */}
                     <span
                       className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg shadow-md flex items-center space-x-1 ${
-                        isHighPriority
+                        report.statusCode === 'resolved'
+                          ? 'bg-emerald-600 text-white ring-1 ring-emerald-400'
+                          : isHighPriority
                           ? 'bg-red-600 text-white ring-1 ring-red-400'
                           : 'bg-amber-500 text-slate-950 ring-1 ring-amber-300'
                       }`}
                     >
-                      <AlertTriangle className="w-3 h-3" />
-                      <span>{report.priority}</span>
+                      {report.statusCode === 'resolved' ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>RESOLVED IN 18H</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="w-3 h-3" />
+                          <span>{report.priority}</span>
+                        </>
+                      )}
                     </span>
 
                     {/* Status Pill */}
                     <span
                       className={`text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-md shadow-sm ${
                         report.statusCode === 'resolved'
-                          ? 'bg-emerald-600/90 text-white'
+                          ? 'bg-emerald-500 text-slate-950 font-black'
                           : report.statusCode === 'in_action'
                           ? 'bg-blue-600/90 text-white'
                           : 'bg-slate-900/85 text-emerald-300 border border-emerald-500/30'
@@ -264,6 +277,29 @@ export default function LiveMunicipalFeed({
                         <Building2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span className="truncate font-medium">{report.department}</span>
                       </div>
+                    </div>
+
+                    {/* Municipal Resolution Lifecycle Action Button */}
+                    <div className="pt-1">
+                      {report.statusCode === 'resolved' ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenRepairModal && onOpenRepairModal(report)}
+                          className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>View 3-Way Resolution Proof ✅</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onOpenRepairModal && onOpenRepairModal(report)}
+                          className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-emerald-950 text-white hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/50 text-xs font-bold transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-2xs group/btn"
+                        >
+                          <Wrench className="w-3.5 h-3.5 text-emerald-400 group-hover/btn:rotate-45 transition-transform" />
+                          <span>Simulate MCD / PWD Repair</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
