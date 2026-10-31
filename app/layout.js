@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 
 export const metadata = {
   title: 'Civic AI Assistant | Smart Urban Grievance & Infrastructure Verifier',
@@ -19,6 +20,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <Script src="/face-api.js" strategy="beforeInteractive" />
+      </head>
       <body className="min-h-screen bg-slate-950 font-sans antialiased text-slate-900 selection:bg-emerald-500 selection:text-white">
         {children}
       </body>

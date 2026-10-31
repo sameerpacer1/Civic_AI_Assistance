@@ -35,13 +35,16 @@ export default function ReportDetailModal({ report, onClose }) {
   useEffect(() => {
     if (!report) return;
     const raw = report.rawImage || report.rawUrl;
-    const proc = report.processedImage || report.redactedOptimizedUrl;
-    if (proc && proc !== raw && !proc.includes('undefined')) {
-      setLiveProcessedUrl(proc);
-    } else if (raw) {
+    if (raw) {
       generateFacePixelatedDataUrl(raw).then((res) => {
         if (res && res.url) setLiveProcessedUrl(res.url);
-      }).catch(() => setLiveProcessedUrl(raw));
+      }).catch(() => {
+        const proc = report.processedImage || report.redactedOptimizedUrl;
+        if (proc) setLiveProcessedUrl(proc);
+      });
+    } else {
+      const proc = report.processedImage || report.redactedOptimizedUrl;
+      if (proc) setLiveProcessedUrl(proc);
     }
   }, [report]);
 

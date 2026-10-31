@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
     "canvas-confetti": "^1.9.4",
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",

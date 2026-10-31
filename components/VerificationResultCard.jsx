@@ -38,13 +38,14 @@ export default function VerificationResultCard({
 
     if (!result) return;
     const raw = result.rawUrl;
-    const proc = result.redactedOptimizedUrl;
-    if (proc && proc !== raw && !proc.includes('undefined')) {
-      setLiveRedactedUrl(proc);
-    } else if (raw) {
+    if (raw) {
       generateFacePixelatedDataUrl(raw).then((res) => {
         if (res && res.url) setLiveRedactedUrl(res.url);
-      }).catch(() => setLiveRedactedUrl(raw));
+      }).catch(() => {
+        if (result.redactedOptimizedUrl) setLiveRedactedUrl(result.redactedOptimizedUrl);
+      });
+    } else if (result.redactedOptimizedUrl) {
+      setLiveRedactedUrl(result.redactedOptimizedUrl);
     }
   }, [result?.reportId, result?.rawUrl]);
 

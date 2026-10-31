@@ -35,6 +35,7 @@ export default function MunicipalRepairModal({
   const [activeStage, setActiveStage] = useState(1); // 1 = Raw, 2 = Cloudinary, 3 = Repair Proof
   const [isResolved, setIsResolved] = useState(false);
   const [liveProcessedUrl, setLiveProcessedUrl] = useState(null);
+  const [manualBoxes, setManualBoxes] = useState([]);
 
   useEffect(() => {
     if (!report) return;
@@ -42,17 +43,41 @@ export default function MunicipalRepairModal({
     setIsResolved(alreadyResolved);
     setActiveStage(alreadyResolved ? 3 : 1);
     setSimulationStep(alreadyResolved ? 4 : 0);
+    setManualBoxes([]);
 
     const raw = report.rawImage || report.rawUrl;
-    const proc = report.processedImage || report.redactedOptimizedUrl;
-    if (proc && proc !== raw && !proc.includes('undefined')) {
-      setLiveProcessedUrl(proc);
-    } else if (raw) {
+    if (raw) {
       generateFacePixelatedDataUrl(raw).then((res) => {
         if (res && res.url) setLiveProcessedUrl(res.url);
-      }).catch(() => setLiveProcessedUrl(raw));
+      }).catch(() => {
+        const proc = report.processedImage || report.redactedOptimizedUrl;
+        if (proc) setLiveProcessedUrl(proc);
+      });
+    } else {
+      const proc = report.processedImage || report.redactedOptimizedUrl;
+      if (proc) setLiveProcessedUrl(proc);
     }
   }, [report]);
+
+  const handleStage2Click = async (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) / rect.width;
+    const clickY = (e.clientY - rect.top) / rect.height;
+
+    const newBox = { relX: clickX, relY: clickY, relW: 0.12, relH: 0.14 };
+    const updated = [...manualBoxes, newBox];
+    setManualBoxes(updated);
+
+    const raw = report?.rawImage || report?.rawUrl;
+    if (raw) {
+      try {
+        const res = await generateFacePixelatedDataUrl(raw, { manualBoxes: updated });
+        if (res && res.url) {
+          setLiveProcessedUrl(res.url);
+        }
+      } catch (err) {}
+    }
+  };
 
   const handleReopenHazard = () => {
     setIsResolved(false);
@@ -372,7 +397,11 @@ export default function MunicipalRepairModal({
 
               {/* Stage 2: Cloudinary Processed */}
               {activeStage === 2 && (
-                <div className="relative w-full h-full animate-fadeIn">
+                <div 
+                  className="relative w-full h-full animate-fadeIn cursor-crosshair group"
+                  onClick={handleStage2Click}
+                  title="Click anywhere to add/refine privacy blur"
+                >
                   <img
                     src={processedUrl}
                     alt="Cloudinary Processed"
@@ -380,13 +409,16 @@ export default function MunicipalRepairModal({
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
 
-                  <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-cyan-500/40 text-xs text-white">
+                  <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-cyan-500/40 text-xs text-white pointer-events-none">
                     <div className="text-cyan-300 font-bold flex items-center space-x-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                       <span>Stage 2: Cloudinary AI Privacy &amp; Optimization</span>
                     </div>
                     <div className="text-[11px] text-slate-300 mt-0.5">
                       Faces Pixelated • 89% Payload Slashed • Auto-Dispatched to MCD
+                    </div>
+                    <div className="text-[10px] text-purple-300 font-mono mt-0.5 flex items-center space-x-1">
+                      <span>💡 Tap any face to refine / add blur</span>
                     </div>
                   </div>
                 </div>
