@@ -143,8 +143,20 @@ export async function POST(req) {
     const savingsPercent = (((fileSizeBytes - estOptimized) / fileSizeBytes) * 100).toFixed(1);
 
     const demoPublicId = `civic-ai-assistant/${category.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
-    const generatedTransformedUrl = `https://res.cloudinary.com/${cloudName}/image/upload/e_pixelate_faces,f_auto,q_auto,w_1000,c_limit/${demoPublicId}.webp`;
-    const generatedThumbnailUrl = `https://res.cloudinary.com/${cloudName}/image/upload/w_400,h_300,c_fill,g_auto,f_auto,q_auto/${demoPublicId}.webp`;
+    const generatedTransformedUrl = imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')
+      ? `https://res.cloudinary.com/${cloudName}/image/fetch/e_pixelate_faces,f_auto,q_auto,w_1000,c_limit/${imageUrl}`
+      : `https://res.cloudinary.com/${cloudName}/image/upload/e_pixelate_faces,f_auto,q_auto,w_1000,c_limit/${demoPublicId}.webp`;
+    const generatedThumbnailUrl = imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')
+      ? `https://res.cloudinary.com/${cloudName}/image/fetch/w_400,h_300,c_fill,g_auto,f_auto,q_auto/${imageUrl}`
+      : `https://res.cloudinary.com/${cloudName}/image/upload/w_400,h_300,c_fill,g_auto,f_auto,q_auto/${demoPublicId}.webp`;
+
+    const liveRedactedUrl = (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http'))
+      ? generatedTransformedUrl
+      : previewRawUrl;
+
+    const liveThumbnailUrl = (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http'))
+      ? generatedThumbnailUrl
+      : previewRawUrl;
 
     return NextResponse.json({
       success: true,
@@ -156,8 +168,8 @@ export async function POST(req) {
       category,
       description,
       rawUrl: previewRawUrl,
-      redactedOptimizedUrl: previewRawUrl,
-      thumbnailUrl: previewRawUrl,
+      redactedOptimizedUrl: liveRedactedUrl,
+      thumbnailUrl: liveThumbnailUrl,
       cloudinaryTransformationsUrl: generatedTransformedUrl,
       thumbnailTransformUrl: generatedThumbnailUrl,
       publicId: demoPublicId,

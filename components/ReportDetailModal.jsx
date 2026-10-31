@@ -115,13 +115,6 @@ export default function ReportDetailModal({ report, onClose }) {
                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
               />
 
-              {/* Redaction box simulation */}
-              <div className="absolute top-[30%] left-[58%] w-14 h-14 rounded backdrop-blur-md bg-slate-500/40 border border-purple-400 flex items-center justify-center">
-                <span className="text-[9px] font-bold text-white bg-purple-900/90 px-1 rounded">
-                  REDACTED
-                </span>
-              </div>
-
               {/* Right badge */}
               <div className="absolute top-3 right-3 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-cyan-500/40 text-xs text-white">
                 <span className="text-cyan-300 font-bold">Cloudinary Processed</span>
@@ -141,12 +134,6 @@ export default function ReportDetailModal({ report, onClose }) {
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                 />
-
-                <div className="absolute top-[30%] left-[58%] w-14 h-14 rounded border-2 border-dashed border-red-500 bg-red-500/25 flex items-start justify-center p-0.5">
-                  <span className="text-[8px] font-black text-white bg-red-600 px-1 rounded">
-                    RAW FACE
-                  </span>
-                </div>
 
                 <div className="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-red-500/40 text-xs text-white">
                   <span className="text-red-400 font-bold">Raw Upload</span>

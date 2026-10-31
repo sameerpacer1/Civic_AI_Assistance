@@ -322,11 +322,6 @@ export default function MunicipalRepairModal({
                     className="w-full h-full object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
-                  <div className="absolute top-[30%] left-[55%] w-16 h-16 rounded border-2 border-dashed border-red-500 bg-red-500/25 flex items-start justify-center p-0.5">
-                    <span className="text-[9px] font-black text-white bg-red-600 px-1 rounded">
-                      FACE EXPOSED
-                    </span>
-                  </div>
 
                   <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-red-500/40 text-xs text-white">
                     <div className="text-red-400 font-bold flex items-center space-x-1">
@@ -349,11 +344,6 @@ export default function MunicipalRepairModal({
                     className="w-full h-full object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
-                  <div className="absolute top-[30%] left-[55%] w-16 h-16 rounded backdrop-blur-md bg-slate-500/40 border border-purple-400 shadow-inner flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-white bg-purple-900/90 px-1 rounded">
-                      e_pixelate_faces
-                    </span>
-                  </div>
 
                   <div className="absolute top-4 left-4 bg-slate-950/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-cyan-500/40 text-xs text-white">
                     <div className="text-cyan-300 font-bold flex items-center space-x-1">

@@ -235,18 +235,6 @@ export default function VerificationResultCard({
                   onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                 />
 
-                {/* Simulated Face Redaction Overlay box on the processed side */}
-                <div className="absolute top-[28%] left-[62%] w-16 h-16 rounded-lg backdrop-blur-md bg-slate-400/30 border border-purple-400/50 shadow-inner flex items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-white bg-purple-900/80 px-1 rounded">
-                    PIXELATED
-                  </span>
-                </div>
-                <div className="absolute top-[32%] left-[48%] w-14 h-14 rounded-lg backdrop-blur-md bg-slate-400/30 border border-purple-400/50 shadow-inner flex items-center justify-center pointer-events-none">
-                  <span className="text-[9px] font-bold text-white bg-purple-900/80 px-1 rounded">
-                    PIXELATED
-                  </span>
-                </div>
-
                 {/* Right Badge: Cloudinary Processed */}
                 <div className="absolute top-4 right-4 z-20 bg-slate-950/85 backdrop-blur-md text-white px-3.5 py-2 rounded-xl border border-cyan-500/40 text-xs shadow-lg space-y-0.5">
                   <div className="flex items-center space-x-1.5 text-cyan-300 font-bold">
@@ -273,18 +261,6 @@ export default function VerificationResultCard({
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
-
-                  {/* Highlight bounding boxes on raw image showing unredacted faces */}
-                  <div className="absolute top-[28%] left-[62%] w-16 h-16 rounded border-2 border-dashed border-red-500 bg-red-500/20 flex items-start justify-center p-0.5 pointer-events-none">
-                    <span className="text-[9px] font-black text-white bg-red-600 px-1 rounded">
-                      FACE DETECTED
-                    </span>
-                  </div>
-                  <div className="absolute top-[32%] left-[48%] w-14 h-14 rounded border-2 border-dashed border-red-500 bg-red-500/20 flex items-start justify-center p-0.5 pointer-events-none">
-                    <span className="text-[9px] font-black text-white bg-red-600 px-1 rounded">
-                      RAW PII
-                    </span>
-                  </div>
 
                   {/* Left Badge: Raw Upload */}
                   <div className="absolute top-4 left-4 z-20 bg-slate-950/85 backdrop-blur-md text-white px-3.5 py-2 rounded-xl border border-red-500/40 text-xs shadow-lg space-y-0.5">
@@ -342,11 +318,6 @@ export default function VerificationResultCard({
                     className="w-full h-full object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
-                  <div className="absolute top-[30%] left-[55%] w-16 h-16 rounded border-2 border-dashed border-red-500 bg-red-500/20 flex items-start justify-center p-0.5">
-                    <span className="text-[9px] font-black text-white bg-red-600 px-1 rounded">
-                      FACE EXPOSED
-                    </span>
-                  </div>
                 </div>
 
                 <div className="p-4 bg-white border-t border-red-100">
@@ -381,12 +352,6 @@ export default function VerificationResultCard({
                     className="w-full h-full object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
                   />
-                  {/* Simulated Face Redaction Pixelation */}
-                  <div className="absolute top-[30%] left-[55%] w-16 h-16 rounded backdrop-blur-md bg-slate-500/40 border border-purple-400 shadow-inner flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-white bg-purple-900/90 px-1 rounded">
-                      e_pixelate_faces
-                    </span>
-                  </div>
                 </div>
 
                 <div className="p-4 bg-white border-t border-emerald-100">
