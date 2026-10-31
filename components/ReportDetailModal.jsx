@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { generateFacePixelatedDataUrl } from '@/lib/facePrivacy';
 import { 
   X, 
   ShieldCheck, 
@@ -19,6 +20,7 @@ import {
 export default function ReportDetailModal({ report, onClose }) {
   const [sliderPos, setSliderPos] = useState(50);
   const [copied, setCopied] = useState(false);
+  const [liveProcessedUrl, setLiveProcessedUrl] = useState(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -30,10 +32,23 @@ export default function ReportDetailModal({ report, onClose }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    if (!report) return;
+    const raw = report.rawImage || report.rawUrl;
+    const proc = report.processedImage || report.redactedOptimizedUrl;
+    if (proc && proc !== raw && !proc.includes('undefined')) {
+      setLiveProcessedUrl(proc);
+    } else if (raw) {
+      generateFacePixelatedDataUrl(raw).then((res) => {
+        if (res && res.url) setLiveProcessedUrl(res.url);
+      }).catch(() => setLiveProcessedUrl(raw));
+    }
+  }, [report]);
+
   if (!report) return null;
 
   const rawUrl = report.rawImage || report.rawUrl;
-  const processedUrl = report.processedImage || report.redactedOptimizedUrl || report.rawImage;
+  const processedUrl = liveProcessedUrl || report.processedImage || report.redactedOptimizedUrl || report.rawImage;
   const fallbackImg = 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1200&q=85';
 
   const copyUrl = async () => {

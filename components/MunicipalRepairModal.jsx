@@ -20,6 +20,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { RESOLUTION_PROOFS } from '@/lib/sampleData';
+import { generateFacePixelatedDataUrl } from '@/lib/facePrivacy';
 import confetti from 'canvas-confetti';
 
 export default function MunicipalRepairModal({ 
@@ -33,6 +34,7 @@ export default function MunicipalRepairModal({
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeStage, setActiveStage] = useState(1); // 1 = Raw, 2 = Cloudinary, 3 = Repair Proof
   const [isResolved, setIsResolved] = useState(false);
+  const [liveProcessedUrl, setLiveProcessedUrl] = useState(null);
 
   useEffect(() => {
     if (!report) return;
@@ -40,6 +42,16 @@ export default function MunicipalRepairModal({
     setIsResolved(alreadyResolved);
     setActiveStage(alreadyResolved ? 3 : 1);
     setSimulationStep(alreadyResolved ? 4 : 0);
+
+    const raw = report.rawImage || report.rawUrl;
+    const proc = report.processedImage || report.redactedOptimizedUrl;
+    if (proc && proc !== raw && !proc.includes('undefined')) {
+      setLiveProcessedUrl(proc);
+    } else if (raw) {
+      generateFacePixelatedDataUrl(raw).then((res) => {
+        if (res && res.url) setLiveProcessedUrl(res.url);
+      }).catch(() => setLiveProcessedUrl(raw));
+    }
   }, [report]);
 
   const handleReopenHazard = () => {
@@ -72,7 +84,7 @@ export default function MunicipalRepairModal({
   const resolvedInText = report.resolvedIn || `Resolved in ${hoursTaken} Hours (Within ${report.slaHours || 24}h SLA)`;
 
   const rawUrl = report.rawImage || report.rawUrl;
-  const processedUrl = report.processedImage || report.redactedOptimizedUrl || report.rawImage;
+  const processedUrl = liveProcessedUrl || report.processedImage || report.redactedOptimizedUrl || report.rawImage;
   const fallbackImg = 'https://images.unsplash.com/photo-1545459720-aac8509eb02c?auto=format&fit=crop&w=1200&q=85';
 
   const simulationStages = [
@@ -318,7 +330,7 @@ export default function MunicipalRepairModal({
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  <span>2. Cloudinary Triage</span>
+                  <span>2. Cloudinary Triage (Faces Blurred ✅)</span>
                 </button>
                 <button
                   type="button"

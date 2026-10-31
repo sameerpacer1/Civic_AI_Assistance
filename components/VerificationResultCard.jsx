@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { generateFacePixelatedDataUrl } from '@/lib/facePrivacy';
 import { 
   ShieldCheck, 
   CheckCircle2, 
@@ -29,11 +30,23 @@ export default function VerificationResultCard({
   const [sliderPos, setSliderPos] = useState(50);
   const [copied, setCopied] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [liveRedactedUrl, setLiveRedactedUrl] = useState(null);
 
   useEffect(() => {
     setIsAdded(false);
     setSliderPos(50);
-  }, [result?.reportId]);
+
+    if (!result) return;
+    const raw = result.rawUrl;
+    const proc = result.redactedOptimizedUrl;
+    if (proc && proc !== raw && !proc.includes('undefined')) {
+      setLiveRedactedUrl(proc);
+    } else if (raw) {
+      generateFacePixelatedDataUrl(raw).then((res) => {
+        if (res && res.url) setLiveRedactedUrl(res.url);
+      }).catch(() => setLiveRedactedUrl(raw));
+    }
+  }, [result?.reportId, result?.rawUrl]);
 
   if (!result) return null;
 
@@ -64,6 +77,8 @@ export default function VerificationResultCard({
       console.warn('Clipboard write failed:', e);
     }
   };
+
+  const activeRedactedUrl = liveRedactedUrl || result.redactedOptimizedUrl || result.rawUrl;
 
   const {
     title,
@@ -229,7 +244,7 @@ export default function VerificationResultCard({
               <div className="relative h-80 sm:h-[420px] w-full overflow-hidden">
                 {/* Processed (Right / Background Layer) */}
                 <img
-                  src={redactedOptimizedUrl || rawUrl}
+                  src={activeRedactedUrl}
                   alt="Cloudinary Processed"
                   className="absolute inset-0 w-full h-full object-cover filter contrast-[1.02]"
                   onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
@@ -347,7 +362,7 @@ export default function VerificationResultCard({
               <div className="rounded-2xl border-2 border-emerald-400 overflow-hidden bg-slate-900 group relative">
                 <div className="relative h-64 sm:h-72">
                   <img
-                    src={redactedOptimizedUrl || rawUrl}
+                    src={activeRedactedUrl}
                     alt="Cloudinary Processed"
                     className="w-full h-full object-cover"
                     onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallbackImg; }}
