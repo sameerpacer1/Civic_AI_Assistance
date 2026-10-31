@@ -16,7 +16,8 @@ import {
   ArrowRight,
   ExternalLink,
   ChevronRight,
-  Check
+  Check,
+  RotateCcw
 } from 'lucide-react';
 import { RESOLUTION_PROOFS } from '@/lib/sampleData';
 import confetti from 'canvas-confetti';
@@ -25,20 +26,30 @@ export default function MunicipalRepairModal({
   report, 
   isOpen, 
   onClose, 
-  onConfirmResolution 
+  onConfirmResolution,
+  onRevertResolution 
 }) {
   const [simulationStep, setSimulationStep] = useState(0);
   const [isSimulating, setIsSimulating] = useState(false);
-  const [activeStage, setActiveStage] = useState(3); // 1 = Raw, 2 = Cloudinary, 3 = Repair Proof
+  const [activeStage, setActiveStage] = useState(1); // 1 = Raw, 2 = Cloudinary, 3 = Repair Proof
   const [isResolved, setIsResolved] = useState(false);
 
   useEffect(() => {
     if (!report) return;
     const alreadyResolved = report.statusCode === 'resolved';
     setIsResolved(alreadyResolved);
-    setActiveStage(alreadyResolved ? 3 : 2);
+    setActiveStage(alreadyResolved ? 3 : 1);
     setSimulationStep(alreadyResolved ? 4 : 0);
   }, [report]);
+
+  const handleReopenHazard = () => {
+    setIsResolved(false);
+    setActiveStage(1);
+    setSimulationStep(0);
+    if (onRevertResolution && report) {
+      onRevertResolution(report.id);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -168,7 +179,7 @@ export default function MunicipalRepairModal({
               </p>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-wrap gap-2">
               <span
                 className={`text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-wider flex items-center space-x-1 shadow-sm ${
                   isResolved
@@ -188,6 +199,18 @@ export default function MunicipalRepairModal({
                   </>
                 )}
               </span>
+
+              {isResolved && (
+                <button
+                  type="button"
+                  onClick={handleReopenHazard}
+                  className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors flex items-center space-x-1.5 cursor-pointer shadow-xs"
+                  title="Revert back to active complaint"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Reopen as Active Hazard ↺</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -437,7 +460,16 @@ export default function MunicipalRepairModal({
           </div>
 
           <div className="flex items-center space-x-3">
-            {!isResolved && (
+            {isResolved ? (
+              <button
+                type="button"
+                onClick={handleReopenHazard}
+                className="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 shadow-sm"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                <span>Reopen as Active Hazard ↺</span>
+              </button>
+            ) : (
               <button
                 type="button"
                 disabled={isSimulating}

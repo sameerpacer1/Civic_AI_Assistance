@@ -160,6 +160,25 @@ export default function Home() {
     updateAndSaveReports(updated);
   };
 
+  const handleRevertResolution = (reportId) => {
+    const updated = reports.map((r) => {
+      if (r.id === reportId) {
+        return {
+          ...r,
+          status: 'Verified & Queued',
+          statusCode: 'dispatched',
+          resolvedProof: null,
+          resolvedOfficer: null,
+          resolvedAction: null,
+          resolvedIn: null,
+          resolvedWorkOrder: null,
+        };
+      }
+      return r;
+    });
+    updateAndSaveReports(updated);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-900 flex flex-col font-sans">
       {/* Sticky Header */}
@@ -225,6 +244,7 @@ export default function Home() {
           isOpen={Boolean(selectedRepairReport)}
           onClose={() => setSelectedRepairReport(null)}
           onConfirmResolution={handleConfirmResolution}
+          onRevertResolution={handleRevertResolution}
         />
       )}
 
